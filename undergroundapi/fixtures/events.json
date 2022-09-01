@@ -1,0 +1,15 @@
+[
+    {
+        "model": "undergroundapi.event",
+        "pk": 1,
+        "fields": {
+            "name": "new event",
+            "date": "2022-08-30",
+            "time": "19:30:00",
+            "description": "cool new show",
+            "approved": "True",
+            "user": 2,
+            "venue": 1
+        }
+    }
+]
