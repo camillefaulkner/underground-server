@@ -4,7 +4,33 @@
         "pk": 1,
         "fields": {
             "name": "new event",
-            "date": "2022-08-30",
+            "date": "2022-09-05",
+            "time": "19:30:00",
+            "description": "cool new show",
+            "approved": "True",
+            "user": 2,
+            "venue": 1
+        }
+    },
+    {
+        "model": "undergroundapi.event",
+        "pk": 2,
+        "fields": {
+            "name": "later event",
+            "date": "2022-09-10",
+            "time": "19:30:00",
+            "description": "cool new show",
+            "approved": "True",
+            "user": 2,
+            "venue": 1
+        }
+    },
+    {
+        "model": "undergroundapi.event",
+        "pk": 3,
+        "fields": {
+            "name": "NEXT MONDAY",
+            "date": "2022-09-12",
             "time": "19:30:00",
             "description": "cool new show",
             "approved": "True",

@@ -1,3 +1,4 @@
+from unicodedata import category
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
@@ -6,6 +7,8 @@ from django.db.models import Q
 import uuid
 from django.core.files.base import ContentFile
 import base64
+from rest_framework.decorators import action
+from datetime import date, datetime, timedelta
 
 from undergroundapi.models.category_model import Category
 
@@ -33,12 +36,35 @@ class EventView(ViewSet):
             Response -- JSON serialized list of events
         """
 
-        events = Event.objects.all()
+        events = Event.objects.filter(date__gte=date.today())
+        search_text = self.request.query_params.get('q', None)
+
+        if search_text is not None:
+            events = events.filter(
+                Q(venue__name__contains=search_text) |
+                Q(artists__name__contains=search_text) |
+                Q(name__contains=search_text)
+            ).distinct()
+
         approved = request.query_params.get('approved', None)
         if approved is not None:
             events = events.filter(approved=approved)
+        category = request.query_params.get('category', None)
+        if category is not None:
+            events = events.filter(venue__category_id=category)
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
+
+    @action(methods=["get"], detail=False)
+    def this_week(self, request):
+        currentday = datetime.now()
+        startofWeek = currentday
+        #  - timedelta(days=currentday.weekday())
+        endofWeek = currentday + (timedelta(days=7-currentday.weekday()))
+        events = Event.objects.filter(date__range=[startofWeek, endofWeek])
+        serializer = EventSerializer(events, many=True)
+        return Response(serializer.data)
+
 
     def create(self, request):
         """Handle POST operations
@@ -77,10 +103,14 @@ class EventView(ViewSet):
         )
 
         for artist in request.data["artists"]:
+            if "image" in artist:
+                format, imgstr = artist["image"].split(';base64,')
+                ext = format.split('/')[-1]
+                data = ContentFile(base64.b64decode(imgstr), name=f'{request.data["evt"]["name"]}-{uuid.uuid4()}.{ext}')
             artist = Artist.objects.create(
                 name=artist["name"],
                 social= artist["social"] if "social" in artist else None,
-                # image=data,
+                image=data if "image" in artist else None,
                 description=artist["description"],
                 spotify=artist["spotify"] if "spotify" in artist else None
             )
@@ -107,7 +137,6 @@ class EventView(ViewSet):
             data = ContentFile(base64.b64decode(imgstr), name=f'{request.data["name"]}-{uuid.uuid4()}.{ext}')
             event.image = data
 
-        # event.approved = request.data["approved"]
         event.name = request.data["name"]
         event.date = request.data["date"]
         event.time = request.data["time"]
@@ -115,6 +144,13 @@ class EventView(ViewSet):
         
         event.save()
 
+        return Response(None, status=status.HTTP_204_NO_CONTENT) 
+
+    @action(methods=["put"], detail=True) #detail True adds pk to the URL
+    def approve(self, request, pk):
+        event = Event.objects.get(pk=pk)
+        event.approved = True
+        event.save()
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
     def destroy(self, request, pk):

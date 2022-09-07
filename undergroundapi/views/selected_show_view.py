@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import serializers, status
 from django.db.models import Q
 from undergroundapi.models import ChosenShow, Event
-
+from datetime import date, datetime, timedelta
 
 class SelectionView(ViewSet):
     """Rater events view"""
@@ -29,7 +29,7 @@ class SelectionView(ViewSet):
             Response -- JSON serialized list of events
         """
 
-        chosenShows = ChosenShow.objects.all()
+        chosenShows = ChosenShow.objects.filter(event__date__gte=date.today())
         user = request.query_params.get('user', None)
         if user is not None:
             chosenShows = chosenShows.filter(user_id=user)
@@ -43,7 +43,7 @@ class SelectionView(ViewSet):
         Returns
             Response -- JSON serialized game instance
         """
-        event = Event.objects.get(pk=request.data["event"]["id"])
+        event = Event.objects.get(pk=request.data["event"])
 
         chosen = ChosenShow.objects.create(
             event = event,

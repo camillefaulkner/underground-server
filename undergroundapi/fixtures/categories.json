@@ -5,5 +5,12 @@
         "fields": {
             "category": "venue"
         }
+    },
+    {
+        "model": "undergroundapi.category",
+        "pk": 2,
+        "fields": {
+            "category": "houseshow"
+        }
     }
 ]

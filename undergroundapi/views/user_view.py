@@ -4,6 +4,7 @@ from rest_framework import serializers, status
 from undergroundapi.models import Category
 from django.db.models import Q
 from django.contrib.auth.models import User
+from rest_framework.decorators import action
 
 
 class UserView(ViewSet):
@@ -34,6 +35,20 @@ class UserView(ViewSet):
 
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
+
+    @action(methods=["put"], detail=True) #detail True adds pk to the URL
+    def admin(self, request, pk):
+        user = User.objects.get(pk=pk)
+        user.is_staff = True
+        user.save()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=["put"], detail=True) #detail True adds pk to the URL
+    def demote(self, request, pk):
+        user = User.objects.get(pk=pk)
+        user.is_staff = False
+        user.save()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
 class UserSerializer(serializers.ModelSerializer):

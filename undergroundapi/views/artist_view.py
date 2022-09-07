@@ -37,26 +37,6 @@ class ArtistView(ViewSet):
         serializer = ArtistSerializer(artists, many=True)
         return Response(serializer.data)
 
-    def create(self, request):
-        """Handle POST operations
-
-        Returns
-            Response -- JSON serialized game instance
-        """
-        format, imgstr = request.data["action_pic"].split(';base64,')
-        ext = format.split('/')[-1]
-        data = ContentFile(base64.b64decode(imgstr), name=f'{game.id}-{uuid.uuid4()}.{ext}')
-
-        artist = Artist.objects.create(
-            name=request.data["name"],
-            social=request.data["social"],
-            image=data,
-            description=request.data["description"],
-            spotify=request.data["spotify"]
-        )
-        serializer = ArtistSerializer(artist)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
 
 class ArtistSerializer(serializers.ModelSerializer):

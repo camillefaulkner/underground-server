@@ -34,6 +34,19 @@ class CategoryView(ViewSet):
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
+    def create(self, request):
+        """Handle POST operations
+
+        Returns
+            Response -- JSON serialized category instance
+        """
+
+        category = Category.objects.create(
+            category=request.data["category"],
+        )
+        serializer = CategorySerializer(category)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class CategorySerializer(serializers.ModelSerializer):
     """JSON serializer for game types
