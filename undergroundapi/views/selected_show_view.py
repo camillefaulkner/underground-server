@@ -5,6 +5,7 @@ from django.db.models import Q
 from undergroundapi.models import ChosenShow, Event
 from datetime import date, datetime, timedelta
 
+
 class SelectionView(ViewSet):
     """Rater events view"""
 

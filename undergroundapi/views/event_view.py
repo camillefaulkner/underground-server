@@ -129,13 +129,14 @@ class EventView(ViewSet):
         if user.is_staff != True:
             return Response(None, status=status.HTTP_401_UNAUTHORIZED)
         
-        if request.data["image"].startswith('/media'):
-            pass
-        else:
-            format, imgstr = request.data["image"].split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name=f'{request.data["name"]}-{uuid.uuid4()}.{ext}')
-            event.image = data
+        if "image" in request.data and request.data["image"] is not None:
+            if request.data["image"].startswith('/media'):
+                pass 
+            else:   
+                format, imgstr = request.data["image"].split(';base64,')
+                ext = format.split('/')[-1]
+                data = ContentFile(base64.b64decode(imgstr), name=f'{request.data["name"]}-{uuid.uuid4()}.{ext}')
+                event.image = data
 
         event.name = request.data["name"]
         event.date = request.data["date"]
@@ -159,6 +160,13 @@ class EventView(ViewSet):
         if user.is_staff == False:
             return Response(None, status=status.HTTP_401_UNAUTHORIZED)
         event.delete()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=["delete"], detail=True)
+    def delete_artist(self, request, pk):
+        event = Event.objects.get(pk=pk)
+        artist = request.query_params.get('artist', None)
+        event.artists.remove(artist)   
         return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
