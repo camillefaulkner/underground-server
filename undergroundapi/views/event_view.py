@@ -79,14 +79,12 @@ class EventView(ViewSet):
             ext = format.split('/')[-1]
             data = ContentFile(base64.b64decode(imgstr), name=f'{request.data["evt"]["name"]}-{uuid.uuid4()}.{ext}')
 
-        category = Category.objects.get(pk=request.data["venue"]["category"])
-
         if "id" not in request.data["venue"]:
             venue = Venue.objects.create(
                 name=request.data["venue"]["name"],
                 address=request.data["venue"]["address"],
                 private=request.data["venue"]["private"],
-                category=category,
+                category=None,
                 user=user
             )
         else:
@@ -125,11 +123,38 @@ class EventView(ViewSet):
             Response -- Empty body with 204 status code
         """
         user = request.auth.user
-        event = Event.objects.get(pk=pk)
         if user.is_staff != True:
             return Response(None, status=status.HTTP_401_UNAUTHORIZED)
+        event = Event.objects.get(pk=pk)
+        category = Category.objects.get(pk=request.data["venue"]["category"])
+
+        venue = Venue.objects.get(pk=request.data["venue"]["id"])
+        venue.name = request.data["venue"]["name"]
+        venue.address = request.data["venue"]["address"]
+        venue.private = request.data["venue"]["private"]
+        venue.category = category
+        venue.save()
+
+        # for artist in request.data["artists"]:
+        #     artistObj = Artist.objects.get(pk=artist["id"])
+
+        #     if "image" in artist and artist["image"] is not None:
+        #         if request.data["image"].startswith('/media'):
+        #             pass 
+        #         else:   
+        #             format, imgstr = artist["image"].split(';base64,')
+        #             ext = format.split('/')[-1]
+        #             data = ContentFile(base64.b64decode(imgstr), name=f'{artist["name"]}-{uuid.uuid4()}.{ext}')
+        #             artist.image = data
+
+        #     artistObj.name = artist["name"]
+        #     artistObj.social = artist["social"]
+        #     artistObj.description = artist["description"]
+        #     artistObj.spotify = artist["spotify"]
+        #     artistObj.save()
+
         
-        if "image" in request.data and request.data["image"] is not None:
+        if "image" in request.data and request.data["evt"]["image"] is not None:
             if request.data["image"].startswith('/media'):
                 pass 
             else:   
@@ -138,11 +163,10 @@ class EventView(ViewSet):
                 data = ContentFile(base64.b64decode(imgstr), name=f'{request.data["name"]}-{uuid.uuid4()}.{ext}')
                 event.image = data
 
-        event.name = request.data["name"]
-        event.date = request.data["date"]
-        event.time = request.data["time"]
-        event.description = request.data["description"]
-        
+        event.name = request.data["evt"]["name"]
+        event.date = request.data["evt"]["date"]
+        event.time = request.data["evt"]["time"]
+        event.description = request.data["evt"]["description"]
         event.save()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT) 

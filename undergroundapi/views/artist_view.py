@@ -65,6 +65,28 @@ class ArtistView(ViewSet):
         artist.save()
 
         return Response(None, status=status.HTTP_204_NO_CONTENT) 
+    
+    def create(self, request):
+        """Handle POST operations
+
+        Returns
+            Response -- JSON serialized category instance
+        """
+        if "image" in request.data:
+            format, imgstr = request.data["image"].split(';base64,')
+            ext = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(imgstr), name=f'{request.data["name"]}-{uuid.uuid4()}.{ext}')
+
+        artist = Artist.objects.create(
+            name=request.data["name"],
+            social= request.data["social"] if "social" in request.data else None,
+            image=data if "image" in request.data else None,
+            description=request.data["description"],
+            spotify=request.data["spotify"] if "spotify" in request.data else None
+        )
+
+        serializer = ArtistSerializer(artist)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 
