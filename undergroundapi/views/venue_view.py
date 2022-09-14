@@ -31,7 +31,13 @@ class VenueView(ViewSet):
         """
 
         venues = Venue.objects.all()
-
+        search_text = self.request.query_params.get('q', None)
+        
+        if search_text is not None:
+            venues = venues.filter(
+                Q(name__contains=search_text) |
+                Q(address__contains=search_text) 
+            ).distinct()
         serializer = VenueSerializer(venues, many=True)
         return Response(serializer.data)
 
@@ -52,5 +58,5 @@ class VenueSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Venue
-        fields = ('id', 'name', 'address', ' private', 'category', 'user')
+        fields = ('id', 'name', 'address', 'private', 'category', 'user')
         depth = 1
