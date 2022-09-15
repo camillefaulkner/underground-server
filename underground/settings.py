@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 MEDIA_ROOT = 'media'
 MEDIA_URL = '/media/'
 
+ASGI_APPLICATION = "underground.asgi.application"
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'undergroundapi',
+    'channels',
 ]
 
 REST_FRAMEWORK = {
