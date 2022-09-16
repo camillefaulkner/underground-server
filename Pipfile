@@ -11,6 +11,8 @@ djangorestframework = "*"
 django-cors-headers = "*"
 pylint-django = "*"
 pillow = "*"
+gunicorn = "*"
+django-on-heroku = "*"
 
 [dev-packages]
 
