@@ -41,6 +41,19 @@ class VenueView(ViewSet):
         serializer = VenueSerializer(venues, many=True)
         return Response(serializer.data)
 
+    @action(methods=["get"], detail=False) #detail True adds pk to the URL
+    def private_false(self, request):
+        venues = Venue.objects.filter(private=False)
+        search_text = self.request.query_params.get('q', None)
+        
+        if search_text is not None:
+            venues = venues.filter(
+                Q(name__contains=search_text) |
+                Q(address__contains=search_text) 
+            ).distinct()
+        serializer = VenueSerializer(venues, many=True)
+        return Response(serializer.data)
+
 
     @action(methods=["put"], detail=True) #detail True adds pk to the URL
     def assign_category(self, request, pk):

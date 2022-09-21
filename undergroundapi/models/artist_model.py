@@ -8,5 +8,5 @@ class Artist(models.Model):
     image = models.ImageField(
         upload_to='images', height_field=None,
         width_field=None, max_length=None, null=True)
-    description = models.CharField(max_length=400)
+    description = models.CharField(max_length=400, null=True)
     spotify = models.URLField(null=True)

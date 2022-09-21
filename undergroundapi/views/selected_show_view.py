@@ -69,4 +69,4 @@ class ChosenShowSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChosenShow
         fields = ('id', 'event', 'user')
-        depth = 1
+        depth = 2

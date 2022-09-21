@@ -109,7 +109,7 @@ class EventView(ViewSet):
                 name=artist["name"],
                 social= artist["social"] if "social" in artist else None,
                 image=data if "image" in artist else None,
-                description=artist["description"],
+                description=artist["description"] if "description" in artist else None,
                 spotify=artist["spotify"] if "spotify" in artist else None
             )
             evt.artists.add(artist.id)
@@ -157,10 +157,10 @@ class EventView(ViewSet):
         if "image" in request.data and request.data["evt"]["image"] is not None:
             if request.data["image"].startswith('/media'):
                 pass 
-            else:   
-                format, imgstr = request.data["image"].split(';base64,')
+        else:   
+                format, imgstr = request.data["evt"]["image"].split(';base64,')
                 ext = format.split('/')[-1]
-                data = ContentFile(base64.b64decode(imgstr), name=f'{request.data["name"]}-{uuid.uuid4()}.{ext}')
+                data = ContentFile(base64.b64decode(imgstr), name=f'{request.data["evt"]["name"]}-{uuid.uuid4()}.{ext}')
                 event.image = data
 
         event.name = request.data["evt"]["name"]
